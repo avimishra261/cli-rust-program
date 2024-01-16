@@ -1,8 +1,21 @@
 use std::env;
+use std::process;
+use rustgrep::Config;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    // dbg!(args);  this command can be used to print the value of args(vector)
-    let query = &args[1]; // the program's name takes up the first value in args
-    let file_path = &args[2];  // that's why [1] and [2] are used
+
+    let config = Config::build(&args).unwrap_or_else(|e| {
+	println!("Problem in parsing arguments: {e}");
+	process::exit(1);  // Exiting the program with error
+    });
+
+    println!("Searching for: {}", config.query);
+    println!("In file: {}", config.file_path);
+
+    if let Err(e) = rustgrep::run(config) {
+	println!("Application error: {e}");
+	process::exit(1);  // Exiting the program with error
+    }
 }
+
